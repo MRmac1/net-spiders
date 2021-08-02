@@ -3,24 +3,44 @@
 # Please refer to the documentation for information on how to create and manage
 # your spiders.
 import scrapy
-
 from bili.items import BiliItem
-
+from bili.db import Db
 class BiliSpider(scrapy.Spider):
     name = "bili"
     allowed_domains = ["bilibili.com"]
-    start_urls = [
-        "https://www.bilibili.com",
-    ]
 
-    def parse(self, response):
-      vLevel1List = response.selector.xpath('//div[@id="primaryChannelMenu"]/span')
-      vLevel1List.pop()
-      for sel in vLevel1List:
-        item = BiliItem()
-        item['vLevel1'] = sel.xpath('div/a/span/text()').extract()
-        item['vLevel1Url'] = sel.xpath('div/a/@href').extract()
-        yield item
+    def __init__(self):
+      self.db = Db()
+      self.sitePrefix = 'https://www.bilibili.com'
+
+    def start_requests(self):
+      grade2_urls = self.db.execute('select * from Channel where grade = 2 limit 1')
+      if grade2_urls < 0:
+        print('grade2_urls empty')
+      fetch_all = self.db.fetchall()
+      for channel in fetch_all:
+        # (22, 'MMD·3D', 25, 2, '/v/douga/mmd', 1, '使用MMD（MikuMikuDance）和其他3D建模类软件制作的视频')
+        grade2_url = self.sitePrefix + channel[4]
+        yield scrapy.Request(url=grade2_url, callback=self.parseTags, cb_kwargs=dict(grade2_url=grade2_url, channel=channel))
+
+    def parseTags(self, response, channel, grade2_url):
+      tag_list = response.xpath('//ul[@class="tag-list"]/li')
+      if len(tag_list.getall()) > 0:
+        # 删除首位的 “全部”
+        tag_list.pop(0)
+        for tag_item in tag_list:
+          tag_url = grade2_url + tag_item.xpath('a/@href').extract_first()
+          tag_name = tag_item.xpath('a/text()').extract_first()
+          print('tag_url', tag_url)
+          print('tag_name', tag_name)
+          yield scrapy.Request(url= tag_url, callback=self.parse, cb_kwargs=dict(tag_url=tag_url, channel=channel))
+      else:
+        print('tag_list is empty')
+
+    def parse(self, response, tag_url, channel):
+      print('tag_url', tag_url)
+      print('channel', channel)
+      pass
 
     # # 爬取顶层 level 的主页
     # def parseBiliTopLevel(self, response):
