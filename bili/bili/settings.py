@@ -12,6 +12,11 @@ BOT_NAME = 'bili'
 SPIDER_MODULES = ['bili.spiders']
 NEWSPIDER_MODULE = 'bili.spiders'
 
+MYSQL_HOST = '172.20.52.114'
+MYSQL_PORT = 3306
+MYSQL_DATABASE = 'bili'
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = 'sensegear'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'bili (+http://www.yourdomain.com)'
@@ -50,9 +55,9 @@ ROBOTSTXT_OBEY = False
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'bili.middlewares.BiliDownloaderMiddleware': 543,
-#}
+DOWNLOADER_MIDDLEWARES = {
+   'bili.middlewares.RandomUserAgentMiddleware': 543,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
