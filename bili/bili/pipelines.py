@@ -5,9 +5,25 @@
 
 
 # useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+import pymysql
+from pymysql import cursors
 
-
+DB_HOST = '172.20.52.114'
+DB_PORT = 3306
+DB_NAME = 'bili'
+DB_USER = 'root'
+DB_PASS = 'sensegear'
 class BiliPipeline:
-    def process_item(self, item, spider):
+    def __init__(self):
+        db = pymysql.connect(host=DB_HOST, user=DB_USER, port=DB_PORT, password=DB_PASS)
+        self.cursor = db.cursor()
+    def process_item(self, item):
+        print('BiliPipeline item', item)
+        # cursor.execute('select version()')
+        # data = cursor.fetchone()
         return item
+
+
+# mysql://test:1qaz@WSX@localhost:3306/test?charset=utf8
+
+

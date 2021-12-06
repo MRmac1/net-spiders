@@ -1,10 +1,10 @@
 module.exports = {
   database: {
-    host: '172.16.2.118',
+    host: '172.20.52.114',
     port: 3306,
     db: 'bili',
     user: 'root',
-    password: '123123'
+    password: 'sensegear'
   },
   channels: [
     {
